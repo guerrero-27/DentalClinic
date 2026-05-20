@@ -29,4 +29,25 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected $fillable = [
+        'name', 'email', 'phone', 'address', 'birthdate', 'role', 'password',
+    ];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isClient()
+    {
+        return $this->role === 'client';
+    }
 }

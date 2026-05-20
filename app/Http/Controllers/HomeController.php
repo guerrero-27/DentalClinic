@@ -23,6 +23,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        // return view('home');
+        $services = Service::where('is_active', true)->take(6)->get();
+        return view('home', compact('services'));
     }
 }
