@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($services as $service){
-            Service::create(array_merge($service, ['is_-active' => true]));
+            Service::create(array_merge($service, ['is_active' => true]));
         }
     }
 }

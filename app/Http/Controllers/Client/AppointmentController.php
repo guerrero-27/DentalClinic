@@ -41,7 +41,7 @@ class AppointmentController extends Controller
 
         auth()->user()->appointments()->create($validated);
 
-        return redirect()->route('client.appointment.index')->with('success', 'Appointment Booked Successfully! We will confirm shortly.');
+        return redirect()->route('client.appointments.index')->with('success', 'Appointment Booked Successfully! We will confirm shortly');
     }
 
     public function show(Appointment $appointment)
@@ -50,7 +50,7 @@ class AppointmentController extends Controller
         return view('client.appointments.show', compact('appointment'));
     }
 
-    puublic function cancel(Appointment $appointment)
+    public function cancel(Appointment $appointment)
     {
         $this->authorize('update', $appointment);
         if (!in_array($appointment->status, ['pending', 'confirmed'])){

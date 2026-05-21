@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('appointment_date');
             $table->time('appointment_time');
             $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
-            $table->text('motes')->nullable();
-            $table->text('admin_notes');
+            $table->text('notes')->nullable();
+            $table->text('admin_notes')->nullable();
             $table->timestamps();
         });
     }
