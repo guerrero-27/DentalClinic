@@ -39,21 +39,7 @@
         </div>
     </nav>
 
-    @if(session('success'))
-        <div class="max-w-7xl mx-auto px-4 mt-4">
-            <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm">
-                ✅ {{ session('success') }}
-            </div>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="max-w-7xl mx-auto px-4 mt-4">
-            <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 text-sm">
-                ❌ {{ session('error') }}
-            </div>
-        </div>
-    @endif
-
+    
     <main>@yield('content')</main>
 
     <footer class="bg-blue-900 text-blue-100 mt-16 py-10">
@@ -63,5 +49,66 @@
             <p class="text-xs mt-4 text-blue-400">© {{ date('Y') }} DentalCare. All rights reserved.</p>
         </div>
     </footer>
+
+    {{-- ✅ Toast Notifications --}}
+    @if(session('success'))
+    <div id="toast-success" class="fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-4 bg-white border-l-4 border-green-500 rounded-lg shadow-xl transform translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-check text-green-600 text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900">Success</p>
+            <p class="text-sm text-gray-600 truncate">{{ session('success') }}</p>
+        </div>
+        <button onclick="closeToast('toast-success')" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div id="toast-error" class="fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-4 bg-white border-l-4 border-red-500 rounded-lg shadow-xl transform translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-exclamation text-red-600 text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900">Error</p>
+            <p class="text-sm text-gray-600 truncate">{{ session('error') }}</p>
+        </div>
+        <button onclick="closeToast('toast-error')" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    @endif
+
+    <script>
+        function closeToast(id) {
+            const toast = document.getElementById(id);
+            if (toast) {
+                toast.classList.add('translate-x-full');
+                toast.classList.remove('translate-x-0');
+                setTimeout(() => toast.remove(), 500);
+            }
+        }
+
+        setTimeout(() => {
+            ['toast-success', 'toast-error'].forEach(id => {
+                const toast = document.getElementById(id);
+                if (toast) closeToast(id);
+            });
+        }, 4000);
+
+        window.addEventListener('load', () => {
+            ['toast-success', 'toast-error'].forEach(id => {
+                const toast = document.getElementById(id);
+                if (toast) {
+                    setTimeout(() => {
+                        toast.classList.remove('translate-x-full');
+                        toast.classList.add('translate-x-0');
+                    }, 100);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

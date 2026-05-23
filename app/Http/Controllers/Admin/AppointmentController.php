@@ -10,7 +10,7 @@ class AppointmentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Appointment::with(['user', 'service'])->latest();
+        $query = Appointment::with(['user', 'service', 'dentist'])->latest();
 
         if ($request->filled('status')){
             $query->where('status', $request->status);
@@ -21,9 +21,8 @@ class AppointmentController extends Controller
         }
 
         if ($request->filled('search')){
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search. '%')
-                ->orWhere('email', 'like', '%'.$request->search.'%')
-            );
+            $search = '%' . $request->search . '%';
+            $query->whereHas('user', fn($q) => $q->where(fn($r) => $r->where('name', 'like', $search)->orWhere('email', 'like', $search)));
         }
 
         $appointments = $query->paginate(15);
@@ -32,7 +31,7 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment)
     {
-        $appointment->load(['user', 'service']);
+        $appointment->load(['user', 'service', 'dentist']);
         return view('admin.appointments.show', compact('appointment'));
     }
 

@@ -16,63 +16,130 @@
             color: #1e40af;
             font-weight: 600;
         }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* Sidebar transitions */
+        .sidebar {
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+        }
+
+        /* Hide sidebar on mobile by default */
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 50;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        /* Responsive utilities */
+        @media (max-width: 639px) {
+            .main-content {
+                padding: 1rem !important;
+            }
+            .header-title {
+                font-size: 1.25rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans antialiased">
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col">
+        <aside id="sidebar" class="sidebar w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col">
             <!-- Logo -->
-            <div class="p-6 border-b border-gray-200">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                        <i class="fa-solid fa-tooth"></i>
-                    </div>
-                    <div>
-                        <div class="text-lg font-bold text-blue-900">DentalCare</div>
-                        <div class="text-xs text-gray-500">Admin Panel</div>
-                    </div>
-                </a>
+            <div class="p-4 md:p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                            <i class="fa-solid fa-tooth"></i>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-blue-900">DentalCare</div>
+                            <div class="text-xs text-gray-500 hidden sm:block">Admin Panel</div>
+                        </div>
+                    </a>
+                    <!-- Mobile Close Button -->
+                    <button onclick="closeSidebar()" class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Navigation -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-2">
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-gray-700 hover:bg-gray-50' }}">
-                    <i class="fa-solid fa-house"></i>
-                    Dashboard
+                    <i class="fa-solid fa-house w-5 text-center"></i>
+                    <span>Dashboard</span>
                 </a>
 
-                <div class="mt-6">
-                    <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
-                    <div class="mt-3 space-y-2">
+                <div class="mt-4 md:mt-6">
+                    <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:block">Management</h3>
+                    <div class="mt-2 md:mt-3 space-y-1 md:space-y-2">
                         <a href="{{ route('admin.appointments.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.appointments.*') ? 'active' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <i class="fa-solid fa-calendar-check"></i>
-                            Appointments
+                            <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+                            <span>Appointments</span>
                         </a>
 
                         <a href="{{ route('admin.users.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'active' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <i class="fa-solid fa-users"></i>
-                            Clients
+                            <i class="fa-solid fa-users w-5 text-center"></i>
+                            <span>Clients</span>
+                        </a>
+
+                        <a href="{{ route('admin.dentists.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.dentists.*') ? 'active' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <i class="fa-solid fa-user-doctor w-5 text-center"></i>
+                            <span>Dentists</span>
                         </a>
 
                         <a href="{{ route('admin.services.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.services.*') ? 'active' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                            Services
+                            <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i>
+                            <span>Services</span>
                         </a>
                     </div>
                 </div>
 
-                <div class="mt-6">
-                    <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reports</h3>
-                    <div class="mt-3 space-y-2">
-                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fa-solid fa-chart-line"></i>
-                            Analytics
+                <div class="mt-4 md:mt-6">
+                    <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:block">Reports</h3>
+                    <div class="mt-2 md:mt-3 space-y-1 md:space-y-2">
+                        <a href="{{ route('admin.analytics') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.analytics') ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                            <span>Analytics</span>
                         </a>
 
-                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fa-solid fa-file-lines"></i>
-                            Reports
+                        <a href="{{ route('admin.reports') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.reports') ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <i class="fa-solid fa-file-lines w-5 text-center"></i>
+                            <span>Reports</span>
                         </a>
                     </div>
                 </div>
@@ -80,63 +147,141 @@
 
             <!-- Footer -->
             <div class="border-t border-gray-200 p-4">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
+                <div class="flex items-center gap-3 mb-3 md:mb-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold flex-shrink-0">
                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-800 truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500">Administrator</p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition flex items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        Logout
+                        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+                        <span>Logout</span>
                     </button>
                 </form>
             </div>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
             <!-- Top Bar -->
             <header class="bg-white border-b border-gray-200 shadow-sm">
-                <div class="px-8 py-4 flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">@yield('page-title', 'Dashboard')</h1>
+                <div class="px-4 md:px-6 lg:px-8 py-3 md:py-4 flex justify-between items-center gap-4">
+                    <!-- Mobile Menu Button -->
+                    <button onclick="openSidebar()" class="mobile-menu-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+
+                    <div class="flex-1 min-w-0">
+                        <h1 class="header-title text-xl md:text-2xl font-bold text-gray-900 truncate">@yield('page-title', 'Dashboard')</h1>
                         @yield('page-subtitle')
                     </div>
-                    <div class="text-right">
+
+                    <div class="hidden sm:block text-right flex-shrink-0">
                         <p class="text-sm text-gray-500">{{ date('l, F j, Y') }}</p>
                     </div>
                 </div>
             </header>
 
             <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-8">
-                @if(session('success'))
-                    <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                        </svg>
-                        {{ session('error') }}
-                    </div>
-                @endif
-
+            <main class="main-content flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 @yield('content')
             </main>
         </div>
     </div>
+
+    {{-- ✅ Toast Notifications --}}
+    @if(session('success'))
+    <div id="toast-success" class="fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-4 bg-white border-l-4 border-green-500 rounded-lg shadow-xl transform translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-check text-green-600 text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900">Success</p>
+            <p class="text-sm text-gray-600 truncate">{{ session('success') }}</p>
+        </div>
+        <button onclick="closeToast('toast-success')" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div id="toast-error" class="fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-4 bg-white border-l-4 border-red-500 rounded-lg shadow-xl transform translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-exclamation text-red-600 text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900">Error</p>
+            <p class="text-sm text-gray-600 truncate">{{ session('error') }}</p>
+        </div>
+        <button onclick="closeToast('toast-error')" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    @endif
+        </div>
+    </div>
+
+    <script>
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+
+        // ✅ Toast Auto-Dismiss
+        function closeToast(id) {
+            const toast = document.getElementById(id);
+            if (toast) {
+                toast.classList.add('translate-x-full');
+                toast.classList.remove('translate-x-0');
+                setTimeout(() => toast.remove(), 500);
+            }
+        }
+
+        setTimeout(() => {
+            ['toast-success', 'toast-error'].forEach(id => {
+                const toast = document.getElementById(id);
+                if (toast) closeToast(id);
+            });
+        }, 4000);
+
+        window.addEventListener('load', () => {
+            ['toast-success', 'toast-error'].forEach(id => {
+                const toast = document.getElementById(id);
+                if (toast) {
+                    setTimeout(() => {
+                        toast.classList.remove('translate-x-full');
+                        toast.classList.add('translate-x-0');
+                    }, 100);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

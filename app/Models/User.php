@@ -17,21 +17,18 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
     protected $fillable = [
         'name', 'email', 'phone', 'address', 'birthdate', 'role', 'password',
+        'working_start', 'working_end', 'unavailable_dates', 'is_active', 'image',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -49,5 +46,15 @@ class User extends Authenticatable
     public function isClient()
     {
         return $this->role === 'client';
+    }
+
+    public function isDentist()
+    {
+        return $this->role === 'dentist';
+    }
+
+    public function isActiveDentist()
+    {
+        return $this->role === 'dentist' && ($this->is_active === true || $this->is_active === 1);
     }
 }

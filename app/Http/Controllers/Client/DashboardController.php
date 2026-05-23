@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $appointments = $user->appointments()->with('service')->latest()->take(5)->get();
+        $appointments = $user->appointments()->with(['service', 'dentist'])->latest()->take(5)->get();
 
         $stats = [
             'total' => $user->appointments()->count(),

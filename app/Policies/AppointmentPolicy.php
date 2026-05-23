@@ -14,6 +14,17 @@ class AppointmentPolicy
 
     public function update(User $user, Appointment $appointment): bool
     {
-        return $user->id === $appointment->user_id || $user->isAdmin();
+        
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        
+        if ($user->id !== $appointment->user_id) {
+            return false;
+        }
+
+        
+        return $appointment->status === 'pending';
     }
 }

@@ -5,12 +5,14 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Client\AppointmentController as ClientAppointmentController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DentistController;
 
-// ─── Public Routes ───────────────────────────────────────────
+// ─── Public Routes ──────────────────────────────────────���────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ─── Auth Routes (Breeze) ────────────────────────────────────
@@ -19,14 +21,18 @@ require __DIR__.'/auth.php';
 // ─── Client Routes ───────────────────────────────────────────
 Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/appointments', [ClientAppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/create', [ClientAppointmentController::class, 'create'])->name('appointments.create');
+    Route::get('/appointments/slots', [ClientAppointmentController::class, 'getSlots'])->name('appointments.slots');
     Route::post('/appointments', [ClientAppointmentController::class, 'store'])->name('appointments.store');
     Route::get('/appointments/{appointment}', [ClientAppointmentController::class, 'show'])->name('appointments.show');
     Route::patch('/appointments/{appointment}/cancel', [ClientAppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::patch('/appointments/{appointment}/reschedule', [ClientAppointmentController::class, 'reschedule'])->name('appointments.reschedule');
 });
 
-// ─── Admin Routes ────────────────────────────────────────────
+// ─── Admin Routes ────────��───────────────────────────────────
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -36,4 +42,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::resource('services', ServiceController::class);
     Route::resource('users', UserController::class);
+    Route::resource('dentists', DentistController::class);
+
+    Route::get('/analytics', [AdminDashboardController::class, 'analytics'])->name('analytics');
+    Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
 });
