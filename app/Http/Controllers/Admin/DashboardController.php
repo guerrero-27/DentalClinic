@@ -24,7 +24,6 @@ class DashboardController extends Controller
             'total_services' => Service::where('is_active', true)->count(),
         ];
 
-        // Additional metrics
         $newClientsThisMonth = User::where('role', 'client')
             ->whereMonth('created_at', Carbon::now()->month)
             ->count();

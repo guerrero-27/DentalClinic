@@ -27,8 +27,8 @@ class DentistController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'birthdate' => 'nullable|date',
-            'working_start' => 'nullable|date_format:H:i',
-            'working_end' => 'nullable|date_format:H:i',
+            'working_start' => 'nullable',
+            'working_end' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
         ]);
@@ -42,15 +42,16 @@ class DentistController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.dentists.index')->with('success', 'Dentist added successfully');
+        return redirect()->route('admin.dentists.index');
     }
+
 
     public function show(User $dentist)
     {
         if (!$dentist->isDentist()) {
             abort(404);
         }
-        $appointments = $dentist->appointments()->with('service')->latest()->paginate(10);
+        $appointments = $dentist->appointments()->where('status', 'confirmed')->with('service')->latest()->paginate(10);
         return view('admin.dentists.show', compact('dentist', 'appointments'));
     }
 
@@ -74,8 +75,8 @@ class DentistController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'birthdate' => 'nullable|date',
-            'working_start' => 'nullable|date_format:H:i',
-            'working_end' => 'nullable|date_format:H:i',
+            'working_start' => 'nullable',
+            'working_end' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
         ]);
@@ -89,7 +90,7 @@ class DentistController extends Controller
 
         $dentist->update($validated);
 
-        return redirect()->route('admin.dentists.index')->with('success', 'Dentist updated successfully');
+        return redirect()->route('admin.dentists.index');
     }
 
     public function destroy(User $dentist)
@@ -104,6 +105,6 @@ class DentistController extends Controller
 
         $dentist->delete();
 
-        return redirect()->route('admin.dentists.index')->with('success', 'Dentist removed successfully');
+        return redirect()->route('admin.dentists.index');
     }
 }

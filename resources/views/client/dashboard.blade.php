@@ -73,77 +73,32 @@
                 </a>
             </div>
 
-            <!-- Desktop Table View -->
-            <div class="hidden md:block">
+            <!-- Appointments Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 @forelse($appointments as $apt)
-                <div class="p-4 hover:bg-gray-50 transition border-b border-gray-50 last:border-0">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                                <i class="fa-solid fa-tooth text-blue-600"></i>
+                <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition border border-gray-100">
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fa-solid fa-tooth text-blue-600 text-xs"></i>
                             </div>
-                            <div>
-                                <p class="font-semibold text-gray-800">{{ $apt->service->name ?? 'Unknown Service' }}</p>
-                                <p class="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                                    <i class="fa-regular fa-calendar text-gray-400"></i>
-                                    {{ $apt->appointment_date->format('M d, Y') }}
-                                    <span class="mx-1">•</span>
-                                    <i class="fa-regular fa-clock text-gray-400"></i>
-                                    {{ date('g:i A', strtotime($apt->appointment_time)) }}
-                                </p>
-                            </div>
+                            <p class="font-semibold text-gray-800 text-sm">{{ $apt->service->name ?? 'Unknown' }}</p>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $apt->getStatusColorClass() }}">
-                                {{ ucfirst($apt->status) }}
-                            </span>
-                            <a href="{{ route('client.appointments.show', $apt) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition" title="View">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                @empty
-                <div class="p-12 text-center">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-calendar-xmark text-gray-400 text-2xl"></i>
-                    </div>
-                    <p class="text-gray-500 font-medium mb-2">No appointments yet</p>
-                    <a href="{{ route('client.appointments.create') }}" class="inline-flex items-center gap-2 text-blue-600 hover:underline">
-                        <i class="fa-solid fa-plus"></i> Book your first appointment
-                    </a>
-                </div>
-                @endforelse
-            </div>
-
-            <!-- Mobile Card View -->
-            <div class="md:hidden divide-y divide-gray-100">
-                @forelse($appointments as $apt)
-                <div class="p-4 hover:bg-gray-50 transition">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fa-solid fa-tooth text-blue-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-800">{{ $apt->service->name ?? 'Unknown' }}</p>
-                                <p class="text-xs text-gray-500">{{ $apt->appointment_date->format('M d, Y') }} at {{ date('g:i A', strtotime($apt->appointment_time)) }}</p>
-                            </div>
-                        </div>
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $apt->getStatusColorClass() }}">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold {{ $apt->getStatusColorClass() }}">
                             {{ ucfirst($apt->status) }}
                         </span>
                     </div>
-                    <a href="{{ route('client.appointments.show', $apt) }}" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium text-sm transition">
-                        <i class="fa-solid fa-eye"></i> View Details
+                    <p class="text-xs text-gray-500 mb-3">{{ $apt->appointment_date->format('M d, Y') }} • {{ date('g:i A', strtotime($apt->appointment_time)) }}</p>
+                    <a href="{{ route('client.appointments.show', $apt) }}" class="flex items-center justify-center gap-1 w-full px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium text-xs transition">
+                        <i class="fa-solid fa-eye"></i> View
                     </a>
                 </div>
                 @empty
-                <div class="p-8 text-center">
+                <div class="col-span-full p-8 text-center">
                     <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i class="fa-solid fa-calendar-xmark text-gray-400 text-xl"></i>
                     </div>
-                    <p class="text-gray-500 text-sm">No appointments found</p>
+                    <p class="text-gray-500 text-sm">No appointments yet</p>
                     <a href="{{ route('client.appointments.create') }}" class="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm mt-2">
                         Book your first appointment
                     </a>

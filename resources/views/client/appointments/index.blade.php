@@ -24,71 +24,53 @@
         </div>
     @endif
 
+    @if($appointments->count() > 0)
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    @endif
+
     @forelse($appointments as $appointment)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4 hover:shadow-md transition-shadow">
-            <div class="flex flex-col md:flex-row items-stretch">
-                <!-- Left accent bar and status -->
-                <div class="md:w-1 bg-gradient-to-b {{ $appointment->status === 'pending' ? 'from-yellow-400 to-yellow-500' : ($appointment->status === 'confirmed' ? 'from-blue-400 to-blue-500' : ($appointment->status === 'completed' ? 'from-emerald-400 to-emerald-500' : 'from-red-400 to-red-500')) }}"></div>
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition">
+            <!-- Profile Section -->
+            <div class="p-5 text-center border-b border-gray-100">
+                <div class="w-16 h-16 rounded-full bg-blue-100 mx-auto mb-3 flex items-center justify-center text-blue-600 text-2xl font-bold border-2 border-blue-200">
+                    <i class="fa-solid fa-tooth"></i>
+                </div>
+                <a href="{{ route('client.appointments.show', $appointment->id) }}" class="font-bold text-base text-blue-600 hover:text-blue-700 hover:underline">{{ $appointment->service->name }}</a>
+                <p class="text-gray-500 text-xs">ID: #{{ $appointment->id }}</p>
+            </div>
 
-                <!-- Content -->
-                <div class="flex-1 p-6 md:p-8">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <i class="fa-solid fa-stethoscope text-blue-600"></i>
-                                {{ $appointment->service->name }}
-                            </h3>
-                            <p class="text-sm text-gray-500 mt-1">ID: #{{ $appointment->id }}</p>
-                        </div>
-                        <span class="{{ $appointment->getStatusColorClass() }} px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap shadow-sm">
-                            <i class="fa-solid fa-circle mr-1 text-xs"></i>
-                            {{ ucfirst($appointment->status) }}
-                        </span>
-                    </div>
+            <!-- Info Section -->
+            <div class="p-4 space-y-2.5">
+                <div class="flex items-center gap-3 text-sm">
+                    <i class="fa-solid fa-calendar text-gray-400 w-5"></i>
+                    <span class="text-gray-600">{{ $appointment->appointment_date->format('M d, Y') }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <i class="fa-solid fa-clock text-gray-400 w-5"></i>
+                    <span class="text-gray-600">{{ date('g:i A', strtotime($appointment->appointment_time)) }} - {{ date('g:i A', strtotime($appointment->end_time)) }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <i class="fa-solid fa-user-doctor text-gray-400 w-5"></i>
+                    <span class="text-gray-600">{{ $appointment->dentist ? 'Dr. ' . $appointment->dentist->name : 'TBD' }}</span>
+                </div>
+            </div>
 
-                    <!-- Details Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <p class="text-xs text-gray-500 font-semibold">Date</p>
-                            <p class="font-bold text-gray-900 text-lg">{{ $appointment->appointment_date->format('M d') }}</p>
-                            <p class="text-xs text-gray-500">{{ $appointment->appointment_date->format('Y') }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <p class="text-xs text-gray-500 font-semibold">Time</p>
-                            <p class="font-bold text-gray-900 text-lg">{{ date('g:i A', strtotime($appointment->appointment_time)) }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <p class="text-xs text-gray-500 font-semibold">End Time</p>
-                            <p class="font-bold text-gray-900 text-lg">{{ $appointment->end_time ? date('g:i A', strtotime($appointment->end_time)) : '-' }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <p class="text-xs text-gray-500 font-semibold">Duration</p>
-                            <p class="font-bold text-gray-900 text-lg">{{ $appointment->service->duration_minutes }}</p>
-                            <p class="text-xs text-gray-500">minutes</p>
-                        </div>
-
-                        <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
-                            <p class="text-xs text-emerald-600 font-semibold">Dentist</p>
-                            <p class="font-bold text-emerald-900 text-sm">{{ $appointment->dentist ? 'Dr. ' . $appointment->dentist->name : 'Not assigned' }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <a href="{{ route('client.appointments.show', $appointment->id) }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">
-                            <i class="fa-solid fa-eye"></i>
-                            View Details
+            <!-- Status & Actions -->
+            <div class="px-4 pb-4 pt-2 border-t border-gray-100">
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $appointment->getStatusColorClass() }}">
+                        {{ ucfirst($appointment->status) }}
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('client.appointments.show', $appointment->id) }}" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> View
                         </a>
                         @if($appointment->status === 'pending' && $appointment->appointment_date > now())
-                            <form method="POST" action="{{ route('client.appointments.cancel', $appointment->id) }}" class="flex-1" onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
+                            <form method="POST" action="{{ route('client.appointments.cancel', $appointment->id) }}" onsubmit="return confirm('Cancel this appointment?')">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">
-                                    <i class="fa-solid fa-ban"></i>
-                                    Cancel
+                                <button type="submit" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-ban"></i> Cancel
                                 </button>
                             </form>
                         @endif
@@ -108,11 +90,14 @@
         </div>
     @endforelse
 
+        @if($appointments->count() > 0)
+        </div>
+        @endif
+
     <!-- Pagination -->
     @if($appointments->hasPages())
         <div class="mt-8">
             {{ $appointments->links() }}
         </div>
     @endif
-</div>
 @endsection

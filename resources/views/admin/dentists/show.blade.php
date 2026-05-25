@@ -32,7 +32,7 @@
                     <p class="text-gray-500">{{ $dentist->email }}</p>
                     <div class="flex flex-wrap justify-center sm:justify-start gap-4 mt-3 text-sm text-gray-600">
                         <span><i class="fa-solid fa-phone mr-1"></i>{{ $dentist->phone ?? 'N/A' }}</span>
-                        <span><i class="fa-solid fa-user-injured mr-1"></i>{{ $dentist->appointments()->count() }} appointments</span>
+                        <span><i class="fa-solid fa-user-injured mr-1"></i>{{ $dentist->appointments()->where('status', 'confirmed')->count() }} appointments</span>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -56,7 +56,7 @@
                 </div>
                 <div>
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Birthdate</h4>
-                    <p class="text-gray-900">{{ $dentist->birthdate ?? format('M d, Y') ?? 'Not set' }}</p>
+                    <p class="text-gray-900">{{ $dentist->birthdate?->format('M d, Y') ?? 'Not set' }}</p>
                 </div>
                 <div>
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Working Hours</h4>

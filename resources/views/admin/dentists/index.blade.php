@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <p class="text-gray-600">Manage dental professionals</p>
-        <a href="{{ route('admin.dentists.create') }}" class="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-gray-800 transition">
+        <a href="{{ route('admin.dentists.create') }}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl hover:bg-blue-700 font-medium text-sm shadow-lg shadow-blue-200 transition">
             <i class="fa-solid fa-plus"></i>
             Add Dentist
         </a>
@@ -53,7 +53,7 @@
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <i class="fa-solid fa-user-injured text-gray-400 w-5"></i>
-                            <span class="text-gray-600">{{ $dentist->appointments()->count() }} appointments</span>
+                            <span class="text-gray-600">{{ $dentist->appointments()->where('status', 'confirmed')->count() }} appointments</span>
                         </div>
                     </div>
 
@@ -71,13 +71,9 @@
                                 <a href="{{ route('admin.dentists.show', $dentist->id) }}" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="View">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <form action="{{ route('admin.dentists.destroy', $dentist->id) }}" method="POST" onsubmit="return confirm('Remove this dentist?')" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" onclick="showDeleteModal({{ $dentist->id }}, '{{ addslashes($dentist->name) }}', {{ $dentist->appointments()->where('status', 'confirmed')->count() }})" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -101,4 +97,71 @@
             </div>
         </div>
     @endif
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-red-100 mx-auto mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-trash text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Delete Dentist</h3>
+                <p class="text-gray-500 mb-6">Are you sure you want to delete <span id="dentistName" class="font-medium text-gray-900"></span>? This action cannot be undone.</p>
+                <div class="flex gap-3">
+                    <button onclick="hideDeleteModal()" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <form id="deleteForm" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cannot Delete Modal -->
+    <div id="cannotDeleteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-yellow-100 mx-auto mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Cannot Delete Dentist</h3>
+                <p class="text-gray-500 mb-6"><span id="cannotDeleteName" class="font-medium text-gray-900"></span> still has <span id="appointmentCount" class="font-medium text-gray-900"></span>. Please remove or reassign appointments first.</p>
+                <button onclick="hideCannotDeleteModal()" class="w-full px-4 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDeleteModal(id, name, appointmentCount) {
+            if (appointmentCount > 0) {
+                document.getElementById('cannotDeleteName').textContent = name;
+                document.getElementById('appointmentCount').textContent = appointmentCount + ' appointment' + (appointmentCount > 1 ? 's' : '');
+                document.getElementById('cannotDeleteModal').classList.remove('hidden');
+                document.getElementById('cannotDeleteModal').classList.add('flex');
+            } else {
+                document.getElementById('dentistName').textContent = name;
+                document.getElementById('deleteForm').action = '/admin/dentists/' + id;
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('deleteModal').classList.add('flex');
+            }
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        }
+
+        function hideCannotDeleteModal() {
+            document.getElementById('cannotDeleteModal').classList.add('hidden');
+            document.getElementById('cannotDeleteModal').classList.remove('flex');
+        }
+    </script>
 @endsection

@@ -25,10 +25,10 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         if ($user->isAdmin()) {
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect(route('admin.dashboard'));
         }
 
-        return redirect()->intended(route('client.dashboard'));
+        return redirect(route('client.dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse

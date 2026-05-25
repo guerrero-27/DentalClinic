@@ -96,7 +96,7 @@
                 <!-- Working Hours -->
                 <div>
                     <label for="working_start" class="block text-sm font-medium text-gray-700 mb-2">Shift Start</label>
-                    <input type="time" name="working_start" id="working_start" value="{{ old('working_start', $dentist->working_start?->format('H:i')) }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    <input type="time" name="working_start" id="working_start" value="{{ old('working_start', $dentist->working_start ? (is_string($dentist->working_start) ? $dentist->working_start : $dentist->working_start->format('H:i')) : '') }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                     @error('working_start')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -104,7 +104,7 @@
 
                 <div>
                     <label for="working_end" class="block text-sm font-medium text-gray-700 mb-2">Shift End</label>
-                    <input type="time" name="working_end" id="working_end" value="{{ old('working_end', $dentist->working_end?->format('H:i')) }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    <input type="time" name="working_end" id="working_end" value="{{ old('working_end', $dentist->working_end ? (is_string($dentist->working_end) ? $dentist->working_end : $dentist->working_end->format('H:i')) : '') }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                     @error('working_end')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
