@@ -23,6 +23,6 @@ class HomeController extends Controller
             return redirect()->route('client.dashboard');
         }
 
-        return redirect()->route('login');
+        return view('welcome');
     }
 }

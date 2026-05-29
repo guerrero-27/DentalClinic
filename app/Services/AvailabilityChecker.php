@@ -18,12 +18,31 @@ class AvailabilityChecker
     public static function getAvailableSlots($date, $serviceId, $dentistId = null)
     {
         $service = Service::findOrFail($serviceId);
-        $totalMinutes = $service->duration_minutes + $service->buffer_minutes;
+        $totalMinutes = (int) $service->duration_minutes + (int) $service->buffer_minutes;
 
         $slots = [];
         $currentTime = self::CLINIC_START;
 
-        while ($currentTime < self::CLINIC_END) {
+        // Reduce repeated DB work: if dentistId is provided, preload their appointments for the date once.
+        // This avoids per-slot queries inside isSlotBooked().
+        $preloadedAppointments = null;
+        $servicesById = collect();
+
+        if (!empty($dentistId)) {
+            $preloadedAppointments = Appointment::where('appointment_date', $date)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where('dentist_id', $dentistId)
+                ->get(['appointment_time', 'end_time', 'service_id']);
+
+            // Preload services used by those appointments to avoid N+1 Service::find() calls.
+            $serviceIds = $preloadedAppointments->pluck('service_id')->unique()->filter();
+            $servicesById = Service::whereIn('id', $serviceIds)
+                ->get(['id', 'duration_minutes', 'buffer_minutes'])
+                ->keyBy('id');
+        }
+
+        // Generate slots
+        while (true) {
             $startTime = $currentTime;
             $endTime = Carbon::parse($startTime)->addMinutes($totalMinutes)->format('H:i');
 
@@ -32,11 +51,14 @@ class AvailabilityChecker
                 break;
             }
 
+
             // Check if slot overlaps with lunch break
             $overlapsLunch = self::checkOverlapsLunch($startTime, $endTime);
 
             // Check if slot is already booked
-            $isBooked = self::isSlotBooked($date, $startTime, $endTime, $dentistId);
+            // Use preloaded appointments to avoid per-slot DB queries.
+            $isBooked = self::isSlotBooked($date, $startTime, $endTime, $dentistId, $preloadedAppointments, $servicesById);
+
 
             // Check if past today's time
             $isPast = self::isPastSlot($date, $startTime);
@@ -162,30 +184,48 @@ class AvailabilityChecker
         return $slotStart < $lunchEnd && $slotEnd > $lunchStart;
     }
 
-    private static function isSlotBooked($date, $startTime, $endTime, $dentistId = null)
+    private static function isSlotBooked($date, $startTime, $endTime, $dentistId = null, $preloadedAppointments = null, $servicesById = null)
     {
         $newStartSec = self::timeToSecondsOfDay($startTime);
         $newEndSec = self::timeToSecondsOfDay($endTime);
 
-        $appointments = Appointment::where('appointment_date', $date)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->when($dentistId, fn ($q) => $q->where('dentist_id', $dentistId))
-            ->get(['appointment_time', 'end_time', 'service_id']);
+        // If we were given preloaded appointments/services, use them to avoid per-slot DB calls.
+        if (!is_null($preloadedAppointments) && !is_null($servicesById)) {
+            $appointments = $preloadedAppointments;
+        } else {
+            $appointments = Appointment::where('appointment_date', $date)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->when($dentistId, fn ($q) => $q->where('dentist_id', $dentistId))
+                ->get(['appointment_time', 'end_time', 'service_id']);
+        }
+
 
         foreach ($appointments as $apt) {
             $aptStartSec = self::timeToSecondsOfDay($apt->appointment_time);
 
             // If end_time is missing, compute it from the appointment's service duration (+ buffer)
             if (empty($apt->end_time)) {
-                $service = Service::find($apt->service_id);
-                if (!$service) {
-                    continue;
+                // Use preloaded services if available to avoid N+1 queries.
+                if (!is_null($servicesById) && $servicesById->has($apt->service_id)) {
+                    $svc = $servicesById->get($apt->service_id);
+                    $computedEnd = Carbon::parse($apt->appointment_time)
+                        ->addMinutes(((int) $svc->duration_minutes) + ((int) $svc->buffer_minutes))
+                        ->format('H:i');
+                    $aptEndSec = self::timeToSecondsOfDay($computedEnd);
+                } else {
+                    $service = Service::find($apt->service_id);
+                    if (!$service) {
+                        continue;
+                    }
+                    $computedEnd = Carbon::parse($apt->appointment_time)
+                        ->addMinutes(((int) $service->duration_minutes) + ((int) $service->buffer_minutes))
+                        ->format('H:i');
+                    $aptEndSec = self::timeToSecondsOfDay($computedEnd);
                 }
-                $computedEnd = Carbon::parse($apt->appointment_time)->addMinutes($service->duration_minutes + $service->buffer_minutes)->format('H:i');
-                $aptEndSec = self::timeToSecondsOfDay($computedEnd);
             } else {
                 $aptEndSec = self::timeToSecondsOfDay($apt->end_time);
             }
+
 
 
             // Check overlap: newStart < existingEnd AND newEnd > existingStart

@@ -63,7 +63,17 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // If user is a dentist, check for appointments first
+        if ($user->isDentist() && $user->appointments()->exists()) {
+            return back()->with('error', 'Cannot delete dentist with existing appointments.');
+        }
+
+        // For clients, check if they have appointments
+        if ($user->appointments()->exists()) {
+            return back()->with('error', 'Cannot delete user with existing appointments.');
+        }
+
         $user->delete();
-        return back()->with('success', 'Client Deleted');
+        return back()->with('success', 'User Deleted');
     }
 }

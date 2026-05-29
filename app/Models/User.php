@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class, 'user_id');
     }
 
+    public function dentistAppointments()
+    {
+        return $this->hasMany(Appointment::class, 'dentist_id');
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';

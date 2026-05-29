@@ -53,7 +53,7 @@
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <i class="fa-solid fa-user-injured text-gray-400 w-5"></i>
-                            <span class="text-gray-600">{{ $dentist->appointments()->where('status', 'confirmed')->count() }} appointments</span>
+                            <span class="text-gray-600">{{ $dentist->dentistAppointments()->where('status', 'confirmed')->count() }} appointments</span>
                         </div>
                     </div>
 
@@ -71,7 +71,7 @@
                                 <a href="{{ route('admin.dentists.show', $dentist->id) }}" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="View">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <button type="button" onclick="showDeleteModal({{ $dentist->id }}, '{{ addslashes($dentist->name) }}', {{ $dentist->appointments()->where('status', 'confirmed')->count() }})" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                <button type="button" onclick="showDeleteModal({{ $dentist->id }}, '{{ addslashes($dentist->name) }}', {{ $dentist->dentistAppointments()->where('status', 'confirmed')->count() }})" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>

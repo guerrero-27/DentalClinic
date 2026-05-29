@@ -95,9 +95,20 @@ class DentistController extends Controller
 
     public function destroy(User $dentist)
     {
+        // Check if user is actually a dentist
         if (!$dentist->isDentist()) {
             abort(404);
         }
+
+        // Check if dentist has confirmed appointments (these block deletion)
+        $confirmedCount = $dentist->dentistAppointments()->where('status', 'confirmed')->count();
+        if ($confirmedCount > 0) {
+            return redirect()->route('admin.dentists.index')
+                ->with('error', "Cannot delete dentist: has {$confirmedCount} confirmed appointment(s). Please remove or reassign first.");
+        }
+
+        // Delete non-confirmed appointments (pending/completed/cancelled) so MySQL allows deletion
+        $dentist->dentistAppointments()->whereIn('status', ['pending', 'completed', 'cancelled'])->delete();
 
         if ($dentist->image) {
             \Storage::disk('public')->delete($dentist->image);
@@ -105,6 +116,7 @@ class DentistController extends Controller
 
         $dentist->delete();
 
-        return redirect()->route('admin.dentists.index');
+        return redirect()->route('admin.dentists.index')
+            ->with('success', 'Dentist deleted successfully.');
     }
 }
